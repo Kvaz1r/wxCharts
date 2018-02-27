@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2016-2018 Xavier Leclercq and the wxCharts contributors.
+    Copyright (c) 2018 Xavier Leclercq and the wxCharts contributors.
 
     Permission is hereby granted, free of charge, to any person obtaining a
     copy of this software and associated documentation files (the "Software"),
@@ -22,33 +22,36 @@
 
 /// @file
 
-#ifndef _WX_CHARTS_WXDOUGHNUTCHARTCTRL_H_
-#define _WX_CHARTS_WXDOUGHNUTCHARTCTRL_H_
+#ifndef _WX_CHARTS_WXCHARTLEGENDITEM_H_
+#define _WX_CHARTS_WXCHARTLEGENDITEM_H_
 
-#include "wxchartctrl.h"
-#include "wxdoughnutchart.h"
+#include <wx/vector.h>
+#include <wx/colour.h>
+#include <wx/string.h>
 
-/// A control that displays a doughnut chart.
-class wxDoughnutChartCtrl : public wxChartCtrl
+/// Class that represents items of the wxChartLegendData class.
+class wxChartLegendItem
 {
 public:
-    wxDoughnutChartCtrl(wxWindow *parent, wxWindowID id, const wxDoughnutChartData &data,
-        const wxPoint &pos = wxDefaultPosition, const wxSize &size = wxDefaultSize,
-        long style = 0);
-    wxDoughnutChartCtrl(wxWindow *parent, wxWindowID id, const wxDoughnutChartData &data,
-        const wxDougnutChartOptions &options, const wxPoint &pos = wxDefaultPosition,
-        const wxSize &size = wxDefaultSize, long style = 0);
+    /// Constructs a wxChartLegendItem instance.
+    /// @param color The color associated with this
+    /// item on the chart.
+    /// @param label The text to be display in the legend.
+    wxChartLegendItem(const wxColor &color,
+        const wxString &label);
 
-    wxDoughnutAndPieChartBase& GetData();
-    void UpdateData(const wxVector<wxChartSliceData> &data);
-    void AddData(const wxVector<wxChartSliceData> &data);
+    /// Gets the color of the item.
+    /// @return The color of the item.
+    const wxColor& GetColor() const;
+    /// Gets the label of the item.
+    /// @return The label of the item.
+    const wxString& GetLabel() const;
 
 private:
-    virtual wxDoughnutChart& GetChart();
-    void Update();
-
-private:
-    wxDoughnutChart m_doughnutChart;
+    wxColor m_color;
+    wxString m_label;
 };
+
+typedef wxVector<wxChartLegendItem> wxChartLegendItems;
 
 #endif

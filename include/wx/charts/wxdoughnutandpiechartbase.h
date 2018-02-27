@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2016-2017 Xavier Leclercq
+    Copyright (c) 2016-2018 Xavier Leclercq and the wxCharts contributors.
 
     Permission is hereby granted, free of charge, to any person obtaining a
     copy of this software and associated documentation files (the "Software"),
@@ -49,26 +49,27 @@
 /// a common base class. It would actually be possible to
 /// only have the doughnut classes but I usually favor
 /// ease of use over ease of implementation.
-class wxDoughnutAndPieChartBase : public wxChart
+class wxDoughnutAndPieChartBase : public wxChart, public Observable<wxChartLegendItems>
 {
 public:
     /// Constructs a wxDoughnutAndPieChartBase
     /// instance.
     wxDoughnutAndPieChartBase();
+    void UpdateData(const wxVector<wxChartSliceData> &data);
+    void AddData(const wxVector<wxChartSliceData> &data);
 
 protected:
-    void Add(const wxChartSliceData &slice, const wxSize &size);
-    void Add(const wxChartSliceData &slice, size_t index,
-        const wxSize &size);
-    
+    void Add(const wxChartSliceData &slice);
+
 private:
     virtual void DoSetSize(const wxSize &size);
     virtual void DoFit();
     virtual void DoDraw(wxGraphicsContext &gc, bool suppressTooltips);
     virtual wxSharedPtr<wxVector<const wxChartElement*> > GetActiveElements(const wxPoint &point);
-    
+
     wxDouble CalculateCircumference(double value);
-    
+    void UpdateState();
+
 private:
     virtual const wxDoughnutAndPieChartOptionsBase& GetOptions() const = 0;
 
@@ -85,6 +86,7 @@ private:
         void Resize(const wxSize &size, const wxDoughnutAndPieChartOptionsBase& options);
 
         wxDouble GetValue() const;
+        void IncreaseValue(wxDouble val);
 
     private:
         wxDouble m_value;

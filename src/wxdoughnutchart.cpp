@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2016-2017 Xavier Leclercq
+    Copyright (c) 2016-2018 Xavier Leclercq and the wxCharts contributors.
 
     Permission is hereby granted, free of charge, to any person obtaining a
     copy of this software and associated documentation files (the "Software"),
@@ -58,9 +58,5 @@ const wxDougnutChartOptions& wxDoughnutChart::GetOptions() const
 void wxDoughnutChart::Initialize(const wxDoughnutChartData &data,
                                  const wxSize &size)
 {
-    const wxVector<wxChartSliceData>& slices = data.GetSlices();
-    for (size_t i = 0; i < slices.size(); ++i)
-    {
-        Add(slices[i], size);
-    }
+    AddData(data.GetSlices());
 }

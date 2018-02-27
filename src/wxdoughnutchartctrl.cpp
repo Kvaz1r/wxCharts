@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2016-2017 Xavier Leclercq
+    Copyright (c) 2016-2018 Xavier Leclercq and the wxCharts contributors.
 
     Permission is hereby granted, free of charge, to any person obtaining a
     copy of this software and associated documentation files (the "Software"),
@@ -26,19 +26,19 @@ wxDoughnutChartCtrl::wxDoughnutChartCtrl(wxWindow *parent,
                                          wxWindowID id,
                                          const wxDoughnutChartData &data,
                                          const wxPoint &pos,
-                                         const wxSize &size, 
+                                         const wxSize &size,
                                          long style)
     : wxChartCtrl(parent, id, pos, size, style),
     m_doughnutChart(data, size)
 {
 }
 
-wxDoughnutChartCtrl::wxDoughnutChartCtrl(wxWindow *parent, 
-                                         wxWindowID id, 
+wxDoughnutChartCtrl::wxDoughnutChartCtrl(wxWindow *parent,
+                                         wxWindowID id,
                                          const wxDoughnutChartData &data,
                                          const wxDougnutChartOptions &options,
                                          const wxPoint &pos,
-                                         const wxSize &size, 
+                                         const wxSize &size,
                                          long style)
     : wxChartCtrl(parent, id, pos, size, style),
     m_doughnutChart(data, options, size)
@@ -48,4 +48,28 @@ wxDoughnutChartCtrl::wxDoughnutChartCtrl(wxWindow *parent,
 wxDoughnutChart& wxDoughnutChartCtrl::GetChart()
 {
     return m_doughnutChart;
+}
+
+wxDoughnutAndPieChartBase& wxDoughnutChartCtrl::GetData()
+{
+    return m_doughnutChart;
+}
+
+void wxDoughnutChartCtrl::UpdateData(const wxVector<wxChartSliceData> &data)
+{
+    m_doughnutChart.UpdateData(data);
+    Update();
+}
+
+void wxDoughnutChartCtrl::AddData(const wxVector<wxChartSliceData> &data)
+{
+    m_doughnutChart.AddData(data);
+    Update();
+}
+
+void wxDoughnutChartCtrl::Update()
+{
+    auto parent = this->GetParent();
+    if(parent)
+        parent->Layout();
 }

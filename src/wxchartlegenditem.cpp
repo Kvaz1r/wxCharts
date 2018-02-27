@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2016-2018 Xavier Leclercq and the wxCharts contributors.
+    Copyright (c) 2018 Xavier Leclercq
 
     Permission is hereby granted, free of charge, to any person obtaining a
     copy of this software and associated documentation files (the "Software"),
@@ -20,35 +20,20 @@
     IN THE SOFTWARE.
 */
 
-/// @file
+#include "wxchartlegenditem.h"
 
-#ifndef _WX_CHARTS_WXDOUGHNUTCHARTCTRL_H_
-#define _WX_CHARTS_WXDOUGHNUTCHARTCTRL_H_
-
-#include "wxchartctrl.h"
-#include "wxdoughnutchart.h"
-
-/// A control that displays a doughnut chart.
-class wxDoughnutChartCtrl : public wxChartCtrl
+wxChartLegendItem::wxChartLegendItem(const wxColor &color,
+                                     const wxString &label)
+    : m_color(color), m_label(label)
 {
-public:
-    wxDoughnutChartCtrl(wxWindow *parent, wxWindowID id, const wxDoughnutChartData &data,
-        const wxPoint &pos = wxDefaultPosition, const wxSize &size = wxDefaultSize,
-        long style = 0);
-    wxDoughnutChartCtrl(wxWindow *parent, wxWindowID id, const wxDoughnutChartData &data,
-        const wxDougnutChartOptions &options, const wxPoint &pos = wxDefaultPosition,
-        const wxSize &size = wxDefaultSize, long style = 0);
+}
 
-    wxDoughnutAndPieChartBase& GetData();
-    void UpdateData(const wxVector<wxChartSliceData> &data);
-    void AddData(const wxVector<wxChartSliceData> &data);
+const wxColor& wxChartLegendItem::GetColor() const
+{
+    return m_color;
+}
 
-private:
-    virtual wxDoughnutChart& GetChart();
-    void Update();
-
-private:
-    wxDoughnutChart m_doughnutChart;
-};
-
-#endif
+const wxString& wxChartLegendItem::GetLabel() const
+{
+    return m_label;
+}

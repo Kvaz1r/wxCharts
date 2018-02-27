@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2016-2017 Xavier Leclercq
+    Copyright (c) 2016-2018 Xavier Leclercq and the wxCharts contributors.
 
     Permission is hereby granted, free of charge, to any person obtaining a
     copy of this software and associated documentation files (the "Software"),
@@ -46,7 +46,7 @@ public:
     static size_t GetDecimalPlaces();
     static void CalculateGridRange(wxDouble minValue,
         wxDouble maxValue, wxDouble &graphMinValue,
-        wxDouble &graphMaxValue, wxDouble &valueRange, 
+        wxDouble &graphMaxValue, wxDouble &valueRange,
         size_t &steps, wxDouble &stepValue);
     static wxDouble CalculateOrderOfMagnitude(wxDouble value);
     static void BuildNumericalLabels(wxDouble minValue, size_t steps,
@@ -63,6 +63,54 @@ public:
     static void GetTextSize(wxGraphicsContext &gc,
         const wxFont &font, const wxString &string,
         wxDouble &width, wxDouble &height);
+};
+
+template<typename T>
+class Observer
+{
+public:
+    virtual void update(const T &state) = 0;
+};
+
+template<typename T>
+class Observable
+{
+public:
+    Observable() {};
+    virtual ~Observable() {};
+
+    void AddHandler(Observer<T> *observer)
+    {
+        m_observers.push_back(observer);
+    }
+
+    void RemoveHandler(Observer<T> *observer)
+    {
+        m_observers.erase(
+            std::remove(m_observers.begin(), m_observers.end(), observer),
+            m_observers.end());
+    }
+
+    void Notify()
+    {
+        for(auto &observer : m_observers)
+            observer->update(m_state);
+    }
+
+    const T& GetState() const
+    {
+        return m_state;
+    }
+
+    void SetState(const T &newState)
+    {
+        m_state = newState;
+        Notify();
+    }
+
+protected:
+    wxVector<Observer<T>*> m_observers;
+    T m_state;
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2016-2017 Xavier Leclercq
+    Copyright (c) 2016-2018 Xavier Leclercq and the wxCharts contributors.
 
     Permission is hereby granted, free of charge, to any person obtaining a
     copy of this software and associated documentation files (the "Software"),
@@ -41,7 +41,7 @@ wxDoughnutAndPieChartBase::SliceArc::SliceArc(const wxChartSliceData &slice,
                                               wxDouble outerRadius,
                                               wxDouble innerRadius,
                                               unsigned int strokeWidth)
-    : wxChartArc(x, y, startAngle, endAngle, outerRadius, innerRadius, 
+    : wxChartArc(x, y, startAngle, endAngle, outerRadius, innerRadius,
         slice.GetTooltipText(), wxChartArcOptions(strokeWidth, slice.GetColor())),
     m_value(slice.GetValue())
 {
@@ -64,31 +64,34 @@ wxDouble wxDoughnutAndPieChartBase::SliceArc::GetValue() const
     return m_value;
 }
 
+void wxDoughnutAndPieChartBase::SliceArc::IncreaseValue(wxDouble val)
+{
+    m_value += val;
+}
+
 wxDoughnutAndPieChartBase::wxDoughnutAndPieChartBase()
     : m_total(0)
 {
 }
 
-void wxDoughnutAndPieChartBase::Add(const wxChartSliceData &slice,
-                                    const wxSize &size)
-{
-    Add(slice, m_slices.size(), size);
-}
-
-void wxDoughnutAndPieChartBase::Add(const wxChartSliceData &slice, 
-                                    size_t index,
-                                    const wxSize &size)
+void wxDoughnutAndPieChartBase::Add(const wxChartSliceData &slice)
 {
     m_total += slice.GetValue();
+    auto key = slice.GetLabel();
 
-    wxDouble x = (size.GetX() / 2) - 2;
-    wxDouble y = (size.GetY() / 2) - 2;
-    wxDouble outerRadius = ((x < y) ? x : y) - (GetOptions().GetSliceStrokeWidth() / 2);
-    wxDouble innerRadius = outerRadius * ((wxDouble)GetOptions().GetPercentageInnerCutout()) / 100;
+    if(m_slices.find(key) == m_slices.end())
+    {
+        wxDouble x = (m_size.GetX() / 2) - 2;
+        wxDouble y = (m_size.GetY() / 2) - 2;
+        wxDouble outerRadius = ((x < y) ? x : y) - (GetOptions().GetSliceStrokeWidth() / 2);
+        wxDouble innerRadius = outerRadius * ((wxDouble)GetOptions().GetPercentageInnerCutout()) / 100;
 
-    SliceArc::ptr newSlice = SliceArc::ptr(new SliceArc(slice,
-        x, y, 0, 0, outerRadius, innerRadius, GetOptions().GetSliceStrokeWidth()));
-    m_slices.insert(m_slices.begin() + index, newSlice);
+        SliceArc::ptr newSlice = SliceArc::ptr(new SliceArc(slice,
+                                               x, y, 0, 0, outerRadius, innerRadius, GetOptions().GetSliceStrokeWidth()));
+        m_slices[key] = newSlice;
+    }
+    else
+        m_slices[key]->IncreaseValue(slice.GetValue());
 }
 
 void wxDoughnutAndPieChartBase::DoSetSize(const wxSize &size)
@@ -98,18 +101,15 @@ void wxDoughnutAndPieChartBase::DoSetSize(const wxSize &size)
 
 void wxDoughnutAndPieChartBase::DoFit()
 {
-    for (size_t i = 0; i < m_slices.size(); ++i)
-    {
-        m_slices[i]->Resize(m_size, GetOptions());
-    }
+    for (auto &slice : m_slices)
+        slice.second->Resize(m_size, GetOptions());
 
     wxDouble startAngle = 0.0;
-    for (size_t i = 0; i < m_slices.size(); ++i)
+    for (auto &x : m_slices)
     {
-        SliceArc& currentSlice = *m_slices[i];
-
-        wxDouble endAngle = startAngle + CalculateCircumference(currentSlice.GetValue());
-        currentSlice.SetAngles(startAngle, endAngle);
+        auto currentSlice = x.second;
+        wxDouble endAngle = startAngle + CalculateCircumference(currentSlice->GetValue());
+        currentSlice->SetAngles(startAngle, endAngle);
         startAngle = endAngle;
     }
 }
@@ -119,10 +119,8 @@ void wxDoughnutAndPieChartBase::DoDraw(wxGraphicsContext &gc,
 {
     Fit();
 
-    for (size_t i = 0; i < m_slices.size(); ++i)
-    {
-        m_slices[i]->Draw(gc);
-    }
+    for (auto &slice : m_slices)
+        slice.second->Draw(gc);
 
     if (!suppressTooltips)
     {
@@ -133,11 +131,12 @@ void wxDoughnutAndPieChartBase::DoDraw(wxGraphicsContext &gc,
 wxSharedPtr<wxVector<const wxChartElement*> > wxDoughnutAndPieChartBase::GetActiveElements(const wxPoint &point)
 {
     wxSharedPtr<wxVector<const wxChartElement*> > activeElements(new wxVector<const wxChartElement*>());
-    for (size_t i = 0; i < m_slices.size(); ++i)
+    for (auto &x : m_slices)
     {
-        if (m_slices[i]->HitTest(point))
+        auto currentSlice = x.second;
+        if (currentSlice->HitTest(point))
         {
-            activeElements->push_back(m_slices[i].get());
+            activeElements->push_back(currentSlice.get());
         }
     }
     return activeElements;
@@ -153,4 +152,30 @@ wxDouble wxDoughnutAndPieChartBase::CalculateCircumference(wxDouble value)
     {
         return 0;
     }
+}
+
+void wxDoughnutAndPieChartBase::UpdateData(const wxVector<wxChartSliceData> &data)
+{
+    m_slices.clear();
+    m_total = 0;
+    for(const auto &slice : data)
+        Add(slice);
+
+    UpdateState();
+}
+
+void wxDoughnutAndPieChartBase::AddData(const wxVector<wxChartSliceData> &data)
+{
+    for(const auto &slice : data)
+        Add(slice);
+    UpdateState();
+}
+
+void wxDoughnutAndPieChartBase::UpdateState()
+{
+    wxChartLegendItems state;
+    for(const auto &slice : m_slices)
+        state.push_back(
+            wxChartLegendItem(slice.second->GetOptions().GetFillColor(),slice.first));
+    SetState(state);
 }
