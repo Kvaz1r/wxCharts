@@ -48,6 +48,8 @@ public:
         wxDouble maxValue, wxDouble &graphMinValue,
         wxDouble &graphMaxValue, wxDouble &valueRange, 
         size_t &steps, wxDouble &stepValue);
+    static void CalculateGridRange(wxDouble minValue,
+        wxDouble maxValue, size_t &steps, wxDouble &stepValue);
     static wxDouble CalculateOrderOfMagnitude(wxDouble value);
     static void BuildNumericalLabels(wxDouble minValue, size_t steps,
         wxDouble stepValue, const wxChartLabelOptions &options,

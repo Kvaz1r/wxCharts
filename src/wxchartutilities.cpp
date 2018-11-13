@@ -34,6 +34,19 @@
 #include "wxchartutilities.h"
 #include <sstream>
 
+size_t getSteps(size_t d,size_t N=10)
+	{
+	for(size_t i = N;i>2;i++)
+	{
+	    if(d%10==0)
+		{
+			return i;
+		}
+	}
+	return 2;
+	}
+
+
 size_t wxChartUtilities::GetDecimalPlaces()
 {
     return 1;
@@ -69,6 +82,22 @@ void wxChartUtilities::CalculateGridRange(wxDouble minValue,
     wxDouble graphRange = graphMaxValue - graphMinValue;
     stepValue = pow(10, rangeOrderOfMagnitude);
     steps = round(graphRange / stepValue);
+}
+
+void wxChartUtilities::CalculateGridRange(wxDouble minValue,
+                                          wxDouble maxValue,
+                                          size_t &steps,
+                                          wxDouble &stepValue)
+{
+    if (maxValue <= minValue)
+    {
+        steps = 0;
+		stepValue = 0;
+		return;
+    }
+    wxDouble valueRange = maxValue - minValue;
+    steps = getSteps(valueRange,10);
+	stepValue = valueRange/steps;
 }
 
 wxDouble wxChartUtilities::CalculateOrderOfMagnitude(wxDouble value)

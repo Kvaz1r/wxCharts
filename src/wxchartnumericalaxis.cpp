@@ -57,9 +57,20 @@ wxChartNumericalAxis::wxChartNumericalAxis(const std::string &id,
     wxDouble xValueRange = 0;
     size_t steps = 0;
     wxDouble stepValue = 0;
+
+	 if (options.GetStartValueMode() == wxCHARTAXISVALUEMODE_EXPLICIT &&
+		 options.GetEndValueMode() == wxCHARTAXISVALUEMODE_EXPLICIT)
+		 {
+         wxChartUtilities::CalculateGridRange(effectiveMinXValue, effectiveMaxXValue, steps, stepValue);
+		 graphMinXValue = effectiveMinXValue;
+	     graphMaxXValue = effectiveMaxXValue;
+		 xValueRange = effectiveMaxXValue-effectiveMaxXValue; 
+		 }
+	 else
+		 {
     wxChartUtilities::CalculateGridRange(effectiveMinXValue, effectiveMaxXValue,
         graphMinXValue, graphMaxXValue, xValueRange, steps, stepValue);
-
+		 }
     SetMinValue(graphMinXValue);
     SetMaxValue(graphMaxXValue);
 
